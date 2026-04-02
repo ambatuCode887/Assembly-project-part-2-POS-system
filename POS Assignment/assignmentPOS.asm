@@ -1,13 +1,15 @@
-global main
-extern printf
+extern GetStdHandle, WriteConsoleA, ReadConsoleA, ExitProcess
 
 section .data
-    msg db "wassap, World!", 0
+
+
+section .bss
+
 
 section .text
-main:
-    sub rsp, 28h
-    mov rcx, msg
-    call printf
-    add rsp, 28h
-    ret
+    global main
+
+    ; --- Exit ---
+    add rsp, 40                 ; Clean up shadow space before exiting
+    xor rcx, rcx
+    call ExitProcess
