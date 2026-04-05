@@ -152,6 +152,35 @@ thankYouMessage
                 db 'Thank you for visiting Mckudonarudo! Have a great day!', 10
                 db '===============================', 10, 0
 
+
+;now we have to define the data to hold item prices and cart total
+;burger
+priceClassicBurger dd 5.99
+priceSpicyBurger dd 6.49
+priceHoneyMustardBurger dd 6.99
+priceBBQBurger dd 6.99
+
+;Chicken Tenders
+priceClassicChickenTenders dd 4.99
+priceSpicyChickenTenders dd 5.49
+priceHoneyMustardChickenTenders dd 5.99
+priceBBQChickenTenders dd 5.99
+
+;Spicy Chicken with Nasi Lemak
+priceSpicyChickenNasiLemak dd 7.99
+
+;Desserts
+priceChocolateLavaCake dd 4.99
+priceVanillaIceCreamSundae dd 3.99
+priceStrawberryCheesecake dd 5.49
+
+;Meal Add-ons
+largeFriesPrice dd 1.00
+largeSoftDrinkPrice dd 1.00
+
+;make it a meal price
+makeItAMealPrice dd 5.00
+
 section .bss
 
 
