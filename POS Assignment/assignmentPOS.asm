@@ -181,6 +181,9 @@ largeSoftDrinkPrice dd 1.00
 ;make it a meal price
 makeItAMealPrice dd 5.00
 
+;storing total price in cart
+cartTotal dd 0.00
+
 section .bss
 
 
