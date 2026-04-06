@@ -402,7 +402,7 @@ print_cents:
     mov     eax, [ebp+8]
     xor     edx, edx
     mov     ebx, 100
-    div     ebx                 ; eax = dollars, edx = cents
+    div     ebx                 ;eax = quotient, edx = remainder
 
     push    eax
     call    print_number
@@ -410,11 +410,11 @@ print_cents:
     push    dotStr
     call    print_string
 
-    ; always print 2 digit cents
+    ;always print 2 digit cents
     mov     eax, edx
     cmp     eax, 10
     jge     .no_leading_zero
-    ; print leading zero
+    ;print leading zero
     push    0
     mov     byte [digitBuf], '0'
     mov     byte [digitBuf+1], 0
@@ -647,8 +647,24 @@ main:
     cmp     al, '5'
     je      .view_cart
     cmp     al, '6'
-    je      .exit_program
+    je      .confirmation_to_exit_menu;
     jmp     .main_menu
+    
+.confirmation_to_exit_menu:
+    push confirmationExit
+    call print_string
+    
+    call read_char
+    
+    cmp al, 'Y'
+    je .login_menu
+    cmp al, 'y'
+    je .login_menu
+    cmp al, 'N'
+    je .main_menu
+    cmp al, 'n'
+    je .main_menu   
+    
 
 ; ── Burger Menu ───────────────────────────────────
 .burger_menu:
