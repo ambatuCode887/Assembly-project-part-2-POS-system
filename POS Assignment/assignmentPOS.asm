@@ -1,17 +1,12 @@
-extern GetStdHandle@4, WriteConsoleA@20, ReadConsoleA@20, ExitProcess@4
-
-; ================================================================
 section .data
-; ================================================================
-
-newLine db 10, 0
-
+;welcome message
 welcomeMsg:
-    db '===============================', 10
-    db 'Welcome to Mckudonarudo POS system!', 10
-    db 'Feeling hungry? Please Order now!', 10
-    db '===============================', 10, 0
+        db '===============================', 10
+        db 'Welcome to Mckudonarudo POS system!', 10
+        db '===============================', 10, 0
+welcomeLength equ $ - welcomeMsg
 
+;authentication part
 firstMenuLogin:
     db '===============================', 10
     db 'Please select an option:', 10
@@ -20,64 +15,7 @@ firstMenuLogin:
     db '3. Exit', 10
     db '===============================', 10
     db 'selection: ', 0
-    
-    
-confirmationExit:
-    db '===============================', 10
-    db 'Are you sure want to exit?', 10
-    db '===============================', 10
-    db '(Y/N): ', 0
-    
-
-LOGIN_COUNT db 0
-
-registeringPerk:
-    db '=====================================', 10
-    db 'Have not registered yet? Register now!', 10
-    db 'For 10% off on your first order!', 10
-    db '=====================================', 10, 0
-
-promptUserName:
-    db '===============================', 10
-    db 'Please enter your name: ', 0
-
-promptUserPassword:
-    db 'Please enter your password: ', 0
-
-promptConfirmPassword:
-    db 'Please confirm your password: ', 0
-
-promptUserLogin:
-    db '===============================', 10
-    db 'Please enter your name to login: ', 0
-
-promptUserLoginPassword:
-    db 'Please enter your password to login: ', 0
-
-successfulLogin:
-    db '===============================', 10
-    db 'Login successful!', 10
-    db '===============================', 10, 0
-
-registrationSuccess:
-    db '===============================', 10
-    db 'Registration successful! Please login to continue.', 10
-    db '===============================', 10, 0
-
-error_fail:
-    db '===============================', 10
-    db 'You have exceeded the maximum number of login attempts. Exiting....', 10
-    db '===============================', 10, 0
-
-error_confirmPassword:
-    db '===============================', 10
-    db 'Passwords do not match! Please try again.', 10
-    db '===============================', 10, 0
-
-error_invalidLogin:
-    db '===============================', 10
-    db 'Invalid name or password! Please try again.', 10
-    db '===============================', 10, 0
+firstMenuLoginLength equ $ - firstMenuLogin
 
 menuSelection:
     db '===============================', 10
@@ -90,6 +28,7 @@ menuSelection:
     db '6. Exit', 10
     db '===============================', 10
     db 'selection: ', 0
+menuSelectionLength equ $ - menuSelection
 
 menuDisplayBurger:
     db '===============================', 10
@@ -102,6 +41,7 @@ menuDisplayBurger:
     db '6. Back to Main Menu', 10
     db '===============================', 10
     db 'selection: ', 0
+menuDisplayBurgerLength equ $ - menuDisplayBurger
 
 menuDisplayChickenTenders:
     db '===============================', 10
@@ -113,6 +53,7 @@ menuDisplayChickenTenders:
     db '5. Back to Main Menu', 10
     db '===============================', 10
     db 'selection: ', 0
+menuDisplayChickenTendersLength equ $ - menuDisplayChickenTenders
 
 menuDisplaySpicyChickenNasiLemak:
     db '===============================', 10
@@ -121,6 +62,7 @@ menuDisplaySpicyChickenNasiLemak:
     db '2. Back to Main Menu', 10
     db '===============================', 10
     db 'selection: ', 0
+menuDisplaySpicyChickenNasiLemakLength equ $ - menuDisplaySpicyChickenNasiLemak
 
 menuDisplayDesserts:
     db '===============================', 10
@@ -131,79 +73,72 @@ menuDisplayDesserts:
     db '4. Back to Main Menu', 10
     db '===============================', 10
     db 'selection: ', 0
+menuDisplayDessertsLength equ $ - menuDisplayDesserts
 
-makeItAMeal:
+emptyCartMsg:
     db '===============================', 10
-    db 'Make it a meal or ala carte?', 10
-    db '1. Make it a meal (add $5.00)', 10
-    db '2. Ala Carte', 10
-    db '3. Back to Menu', 10
-    db '===============================', 10
-    db 'selection: ', 0
+    db 'Your cart is empty! Please order something first.', 10
+    db '===============================', 10, 0
+emptyCartMsgLength equ $ - emptyCartMsg
 
-ifAmeal:
-    db '===============================', 10
-    db 'Choose your side and drink:', 10
-    db '1. Regular French Fries', 10
-    db '2. Large French Fries      (add $1.00)', 10
-    db '3. Regular Soft Drink', 10
-    db '4. Large Soft Drink        (add $1.00)', 10
-    db '5. Back to Main Menu', 10
-    db '===============================', 10
-    db 'selection: ', 0
-
-ifAlaCarte:
+itemAddedIndication:
     db '==================', 10
     db 'Item added to cart!', 10
     db '==================', 10, 0
+itemAddedIndicationLength equ $ - itemAddedIndication
 
 viewCartMsg:
-    db '===============================', 10
     db 'Your cart:', 10
     db '1. Checkout', 10
     db '2. Back to Main Menu', 10
     db '===============================', 10
     db 'selection: ', 0
+viewCartMsgLength equ $ - viewCartMsg
 
-priceDisplayItemOnScreen:
-    db '===============================', 10
-    db 'Your current total is: $', 0
+finalHeader db '===============================', 10
+    finalHeaderLength equ $ - finalHeader
 
-taxNote:
-    db ' (exclude 6% tax)', 10
-    db '===============================', 10, 0
+finalTotalLabel db 'Your final total (include 6% tax): $', 0
+    finalTotalLabelLength equ $ - finalTotalLabel
 
-checkOutDisplayPrice:
-    db '===============================', 10
-    db 'Your final total (include 6% tax): $', 0
+finalFooter db 10, '===============================', 10
+    finalFooterLength equ $ - finalFooter
 
 checkoutOptions:
     db 10
     db '1. Pay with Card', 10
-    db '2. Back to Cart', 10
+    db '2. Pay with Cash', 10
+    db '3. Back to Cart', 10
+    db '4. Cancel Payment', 10
     db '===============================', 10
     db 'selection: ', 0
+checkoutOptionsLength equ $ - checkoutOptions
 
 payWithCard:
     db '===============================', 10
     db 'Enter your card details to complete the payment.', 10
     db 'Card Number: ', 0
+payWithCardLength equ $ - payWithCard
 
 expiryPrompt:
     db 'Expiration Date (MM/YY): ', 0
+expiryPromptLength equ $ - expiryPrompt
 
 cvvPrompt:
     db 'CVV: ', 0
+cvvPromptLength equ $ - cvvPrompt
 
 payWithCardFailed:
     db '===============================', 10
     db 'Payment failed! Please try again.', 10
     db '===============================', 10, 0
+payWithCardFailedLength equ $ - payWithCardFailed
 
 payWithCardSuccessful:
     db '===============================', 10
     db 'Payment successful! Thank you for your order!', 10
     db '===============================', 10, 0
+payWithCardSuccessfulLength equ $ - payWithCardSuccessful
 
 orderAgain:
     db '===============================', 10
@@ -212,21 +147,168 @@ orderAgain:
     db '2. No', 10
     db '===============================', 10
     db 'selection: ', 0
+orderAgainLength equ $ - orderAgain
 
-thankYouMessage:
+confirmCancel:
+    db '====================================', 10
+    db ' ARE YOU SURE YOU WANT TO CANCEL?   ', 10
+    db ' Your cart will be cleared.         ', 10
+    db ' 1. Yes, Cancel and Clear Cart      ', 10
+    db ' 2. No, Go Back to Checkout         ', 10
+    db '====================================', 10
+    db 'selection: ', 0
+confirmCancelLength equ $ - confirmCancel
+
+cancelSuccess:
+    db '====================================', 10
+    db ' Payment cancelled. Cart cleared.   ', 10
+    db '====================================', 10, 0
+cancelSuccessLength equ $ - cancelSuccess
+
+payAtCounterMsg:
+    db '================================================', 10
+    db ' THANK YOU FOR ORDERING!                        ', 10
+    db ' Your order has been sent to the kitchen.       ', 10
+    db ' PLEASE PROCEED TO THE COUNTER TO PAY.          ', 10
+    db '================================================', 10, 0
+payAtCounterMsgLen equ $ - payAtCounterMsg
+
+orderAgainUI:
+    db '====================================', 10
+    db 'WOULD YOU LIKE TO ORDER AGAIN?', 10
+    db '1. Yes, I want more food!     ', 10
+    db '2. No, I am done.             ', 10
+    db '====================================', 10
+    db 'selection: ', 0
+orderAgainUILen equ $ - orderAgainUI
+
+finalExitMsg:
+    db '====================================', 10
+    db '   THANK YOU FOR VISITING US!       ', 10
+    db '      HAVE A GREAT DAY!             ', 10
+    db '====================================', 10, 0
+finalExitMsgLen equ $ - finalExitMsg
+
+makeItAMeal:
     db '===============================', 10
-    db 'Thank you for visiting Mckudonarudo! Have a great day!', 10
-    db '===============================', 10, 0
-
-emptyCartMsg:
+    db 'Make it a meal or ala carte?', 10
+    db '1. Make it a meal', 10
+    db '2. Ala Carte', 10
+    db '3. Back to Menu', 10
     db '===============================', 10
-    db 'Your cart is empty! Please order something first.', 10
-    db '===============================', 10, 0
+    db 'selection: ', 0
+makeItAMealLength equ $ - makeItAMeal
 
-dotStr      db '.', 0
-charsWritten dd 0
+receiptHeader db 10, '======= YOUR RECEIPT =======', 10, 0
+receiptHeaderLength equ $ - receiptHeader
 
-; ── Prices in cents ──────────────────────────────
+ifAmeal:
+    db '===============================', 10
+    db 'Choose your side and drink:', 10
+    db '1. Regular French Fries', 10
+    db '2. Large French Fries      (add $2.00)', 10
+    db '3. Regular Soft Drink', 10
+    db '4. Large Soft Drink        (add $1.50)', 10
+    db '5. Back to Main Menu', 10
+    db '===============================', 10
+    db 'selection: ', 0
+ifAmealLength equ $ - ifAmeal
+
+
+
+;clearing screen purporses
+clearScreen db 27, '[2J', 27, '[H'
+clearScreenLength equ $ - clearScreen
+
+
+promptUserName        db 'Please enter your name: ', 0
+promptUserNameLength equ $ - promptUserName
+promptUserPassword    db 'Please enter your password: ', 0
+promptUserPasswordLength equ $ - promptUserPassword
+promptConfirmPassword db 'Please confirm your password: ', 0
+promptConfirmPasswordLength equ $ - promptConfirmPassword
+promptUserLogin       db 'Please enter your name to login: ', 0
+promptUserLoginLength equ $ - promptUserLogin
+promptUserLoginPassword db 'Please enter your password to login: ', 0
+promptUserLoginPasswordLength equ $ - promptUserLoginPassword
+
+
+priceDisplayItemOnScreen:
+    db '===============================', 10
+    db 'Your current total is: $', 0
+priceDisplayItemOnScreenLength equ $ - priceDisplayItemOnScreen
+
+priceFooter:
+        db 10, '===============================', 10
+priceFooterLength equ $ - priceFooter
+
+
+;checking validation part only and successful registration
+exitConfirmationMsg:
+        db 'Are you sure you want to exit? (Y/N): ', 0
+exitConfirmationMsgLength equ $ - exitConfirmationMsg
+
+error_confirmPassword:
+        db 'Password does not match. Please try again.', 10, 0
+error_confirmPasswordLength equ $ - error_confirmPassword
+
+registrationSuccessMsg:
+        db 'Registration successful! You can now login.', 10, 0
+registrationSuccessMsgLength equ $ - registrationSuccessMsg
+
+successfulLogin:
+        db 'Login successful! Welcome to Mckudonarudo POS system!', 10, 0
+successfulLoginLength equ $ - successfulLogin
+
+error_invalidLogin:
+        db 'Invalid username or password. Please try again.', 10, 0
+error_invalidLoginLength equ $ - error_invalidLogin
+
+
+;LISTED ITEM 
+nameClassic db ' - Classic Burger', 10
+nameClassicLength equ $ - nameClassic
+
+nameCheese  db ' - Cheeseburger', 10
+nameCheeseLength equ $ - nameCheese
+
+nameBacon   db ' - Bacon Burger', 10
+nameBaconLength equ $ - nameBacon
+
+nameVeggie db ' - Veggie Burger', 10
+nameVeggieLength equ $ - nameVeggie
+
+nameBikkuMakku db ' - Bikku Makku Burger', 10
+nameBikkuLength equ $ - nameBikkuMakku
+
+;chicken tender
+nameClassicTenders       db ' - Classic Chicken Tenders', 10
+nameClassicTendersLength equ $ - nameClassicTenders
+
+nameSpicyTenders         db ' - Spicy Chicken Tenders', 10
+nameSpicyTendersLength   equ $ - nameSpicyTenders
+
+nameHoneyTenders         db ' - Honey Mustard Tenders', 10
+nameHoneyTendersLength   equ $ - nameHoneyTenders
+
+nameBBQTenders           db ' - BBQ Chicken Tenders', 10
+nameBBQTendersLength     equ $ - nameBBQTenders
+
+;nasi lemak
+nameSpicyNasiLemak       db ' - Spicy Chicken Nasi Lemak', 10
+nameSpicyNasiLemakLength    equ $ - nameSpicyNasiLemak
+
+;desserts
+nameLavaCake             db ' - Chocolate Lava Cake', 10
+nameLavaCakeLength          equ $ - nameLavaCake
+
+nameSundaeCake           db ' - Vanilla Ice Cream Sundae', 10
+nameSundaeCakeLength     equ $ - nameSundaeCake
+
+nameCheeseCaked          db ' - Strawberry Cheesecake', 10
+nameCheeseCakedLength    equ $ - nameCheeseCaked
+
+;ITEM PRICE
 ; Burgers
 priceClassicBurger          dd 599
 priceCheeseburger           dd 699
@@ -234,688 +316,963 @@ priceBaconBurger            dd 799
 priceVeggieBurger           dd 649
 priceBikkuMakkuBurger       dd 899
 
-; Chicken Tenders
-priceClassicChickenTenders      dd 499
-priceSpicyChickenTenders        dd 549
-priceHoneyMustardChickenTenders dd 599
-priceBBQChickenTenders          dd 599
+;ChickenTender
+priceClassicChickenTenders         dd 499
+priceSpicyChickenTenders           dd 549
+priceHoneyMustardChickenTenders    dd 599
+priceBBQChickenTenders             dd 599
 
-; Spicy Chicken Nasi Lemak
-priceSpicyChickenNasiLemak  dd 799
+;nasi lemak
+priceSpicyChickenNS     dd 799
 
-; Desserts
-priceChocolateLavaCake      dd 499
-priceVanillaIceCreamSundae  dd 399
-priceStrawberryCheesecake   dd 549
+;dessert
+priceChocolateLavaCake dd 499
+priceVanillaIceCreamSundae dd 399
+priceStrawberryCheesecake dd 549
 
-; Meal Add-ons
-makeItAMealPrice    dd 500
-largeFriesPrice     dd 100
-largeSoftDrinkPrice dd 100
+;make it a meal
+priceMakeItAMeal dd 500
 
-; Cart
-cartTotal   dd 0
+;price for make it a meal options food
+priceRegularFrenchFries dd 0
+priceLargeFries dd 200
+priceRegularSoftDrinks dd 0
+priceLargeSoftDrinks dd 150
 
-; Number print buffer
-digitBuf    times 12 db 0
+;handling the cart price
+totalPrice dd 0 ;a 4 byte variable initialized to 0
 
-; ================================================================
 section .bss
-; ================================================================
-    hStdOut         resd 1
-    hStdIn          resd 1
-    inputBuf        resb 64
-    charsRead       resd 1
+choiceOption resb 2
+registerName resb 32
+registerPassword resb 32
+loginName resb 32
+loginPassword resb 32
+confirmPassword resb 32
+cardNumber resb 20
+expiryDate resb 8
+cvvCode    resb 5
 
-    REGNAME         resb 32
-    REGPASSWORD     resb 32
-    CONFIRMPASSWORD resb 32
-    LOGINNAME       resb 32
-    LOGINPASSWORD   resb 32
+;to list the item that user ordered
+cartItems resb 30 ;space to store 20 items
+cartCount resd 1 ;keep track
 
-    cardNumber      resb 20
-    expiryDate      resb 8
-    cvv             resb 5
+;work as a paper to store the content used to hold the character once the calculation done
+calculationBuffer resb 10
 
-; ================================================================
 section .text
-    global main
-; ================================================================
+    global _start
 
-; ────────────────────────────────────────────────
-; print_string — print null-terminated string
-; usage: push <label>  /  call print_string
-; ────────────────────────────────────────────────
-print_string:
-    push    ebp
-    mov     ebp, esp
-    push    esi
-    push    ecx
+_start:
+jmp _mainPage
 
-    mov     esi, [ebp+8]
-    xor     ecx, ecx
-.ps_loop:
-    cmp     byte [esi+ecx], 0
-    je      .ps_done
-    inc     ecx
-    jmp     .ps_loop
-.ps_done:
-    push    0
-    push    charsWritten
-    push    ecx
-    push    esi
-    push    dword [hStdOut]
-    call    WriteConsoleA@20
+_readUserInput:
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2
+    int 0x80
+    ret     ;return to where "call" was used
 
-    pop     ecx
-    pop     esi
-    pop     ebp
-    ret     4
-
-; ────────────────────────────────────────────────
-; read_input — reads a line from stdin
-; usage: push <buffer address>  /  call read_input
-; result stored in buffer
-; ────────────────────────────────────────────────
-read_input:
-    push    ebp
-    mov     ebp, esp
-
-    push    0
-    push    charsRead
-    push    32
-    push    dword [ebp+8]
-    push    dword [hStdIn]
-    call    ReadConsoleA@20
-
-    pop     ebp
-    ret     4
-
-; ────────────────────────────────────────────────
-; read_char — reads one character from stdin
-; returns char in AL
-; ────────────────────────────────────────────────
-read_char:
-    push    ebp
-    mov     ebp, esp
-
-    push    0
-    push    charsRead
-    push    64
-    push    inputBuf
-    push    dword [hStdIn]
-    call    ReadConsoleA@20
-
-    movzx   eax, byte [inputBuf]
-
-    pop     ebp
+_clearScreen:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, clearScreen
+    mov edx, clearScreenLength
+    int 0x80
     ret
 
-; ────────────────────────────────────────────────
-; print_number — prints integer
-; usage: push <number>  /  call print_number
-; ────────────────────────────────────────────────
-print_number:
-    push    ebp
-    mov     ebp, esp
-    push    ebx
-    push    ecx
-    push    edx
-    push    edi
+_showAddedMessage:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, itemAddedIndication
+    mov edx, itemAddedIndicationLength
+    int 0x80
+    ret         
 
-    mov     eax, [ebp+8]
-    lea     edi, [digitBuf+11]
-    mov     byte [edi], 0
-    dec     edi
+_mainPage:
+    ;display the main page/login
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, welcomeMsg
+    mov edx, welcomeLength
+    int 0x80
 
-    mov     ebx, 10
-.pn_loop:
-    xor     edx, edx
-    div     ebx
-    add     dl, '0'
-    mov     [edi], dl
-    dec     edi
-    test    eax, eax
-    jnz     .pn_loop
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, firstMenuLogin
+    mov edx, firstMenuLoginLength
+    int 0x80
 
-    inc     edi
-    push    edi
-    call    print_string
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2
+    int 0x80
 
-    pop     edi
-    pop     edx
-    pop     ecx
-    pop     ebx
-    pop     ebp
-    ret     4
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _loginPage
+    cmp al, '2'
+    je _registerPage
+    cmp al, '3' 
+    je _exit_Confirmation
 
-; ────────────────────────────────────────────────
-; print_cents — prints cents value as X.XX
-; usage: push <cents>  /  call print_cents
-; ────────────────────────────────────────────────
-print_cents:
-    push    ebp
-    mov     ebp, esp
-    push    ebx
-    push    edx
+    jmp _mainPage ;if the user input is invalid, it will loop back to the main page
 
-    mov     eax, [ebp+8]
-    xor     edx, edx
-    mov     ebx, 100
-    div     ebx                 ;eax = quotient, edx = remainder
-
-    push    eax
-    call    print_number
-
-    push    dotStr
-    call    print_string
-
-    ;always print 2 digit cents
-    mov     eax, edx
-    cmp     eax, 10
-    jge     .no_leading_zero
-    ;print leading zero
-    push    0
-    mov     byte [digitBuf], '0'
-    mov     byte [digitBuf+1], 0
-    push    digitBuf
-    call    print_string
-.no_leading_zero:
-    push    eax
-    call    print_number
-
-    pop     edx
-    pop     ebx
-    pop     ebp
-    ret     4
-
-; ────────────────────────────────────────────────
-; compare_strings — compares two strings
-; push str2 then str1 before calling
-; returns ZF=1 if equal, ZF=0 if not equal
-; ────────────────────────────────────────────────
-compare_strings:
-    push    ebp
-    mov     ebp, esp
-    push    esi
-    push    edi
-    push    ecx
-
-    mov     esi, [ebp+8]        ; str1
-    mov     edi, [ebp+12]       ; str2
-
-.cmp_loop:
-    mov     al, [esi]
-    mov     bl, [edi]
-    ; strip carriage return and newline
-    cmp     al, 13
-    je      .cmp_end_check
-    cmp     al, 10
-    je      .cmp_end_check
-    cmp     bl, 13
-    je      .cmp_end_check
-    cmp     bl, 10
-    je      .cmp_end_check
-    cmp     al, bl
-    jne     .cmp_not_equal
-    test    al, al
-    jz      .cmp_equal
-    inc     esi
-    inc     edi
-    jmp     .cmp_loop
-.cmp_end_check:
-    ; one side hit newline — check if other is also ending
-    cmp     al, bl
-    je      .cmp_equal
-    ; one ended, other did not
-    mov     al, [esi]
-    cmp     al, 13
-    je      .both_end
-    cmp     al, 10
-    je      .both_end
-    cmp     al, 0
-    je      .both_end
-    jmp     .cmp_not_equal
-.both_end:
-    mov     bl, [edi]
-    cmp     bl, 13
-    je      .cmp_equal
-    cmp     bl, 10
-    je      .cmp_equal
-    cmp     bl, 0
-    je      .cmp_equal
-    jmp     .cmp_not_equal
-.cmp_equal:
-    xor     eax, eax            ; ZF = 1
-    jmp     .cmp_done
-.cmp_not_equal:
-    mov     eax, 1              ; ZF = 0
-    test    eax, eax
-.cmp_done:
-    pop     ecx
-    pop     edi
-    pop     esi
-    pop     ebp
-    ret     8
-
-; ════════════════════════════════════════════════
-; MAIN
-; ════════════════════════════════════════════════
-main:
-    mov     ebp, esp
-
-    ; Get handles
-    push    -11
-    call    GetStdHandle@4
-    mov     [hStdOut], eax
-
-    push    -10
-    call    GetStdHandle@4
-    mov     [hStdIn], eax
-
-    ; Print welcome
-    push    welcomeMsg
-    call    print_string
-
-    push    registeringPerk
-    call    print_string
-
-; ── Login Menu ───────────────────────────────────
-.login_menu:
-    push    firstMenuLogin
-    call    print_string
-
-    call    read_char
-
-    cmp     al, '1'
-    je      .do_login
-    cmp     al, '2'
-    je      .do_register
-    cmp     al, '3'
-    je      .confirmation_to_exit
+_loginPage:
+    ;code for login page
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, promptUserLogin
+    mov edx, promptUserLoginLength
+    int 0x80
     
-.confirmation_to_exit:
-    push confirmationExit
-    call print_string
+    mov eax,3
+    mov ebx, 0
+    mov ecx, loginName
+    mov edx, 32
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, promptUserLoginPassword
+    mov edx, promptUserLoginPasswordLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, loginPassword
+    mov edx, 32
+    int 0x80
+
+    mov esi, loginName
+    mov edi, registerName
+
+_loop_for_name:
+    mov al, [esi]
+    mov bl, [edi]
+
+    cmp al, bl
+    jne _invalidLogin
+    cmp al, 10 ;if it success it will proceed to check with the password
+    je _loop_for_password
+    inc esi
+    inc edi
+
+    jmp _loop_for_name
+
+_loop_for_password:
+    mov esi, registerPassword
+    mov edi, confirmPassword
+
+_loop_for_passwordv2:
+    mov al, [esi]
+    mov bl, [edi]
+
+    cmp al, bl
+    jne _invalidLogin
+
+    cmp al, 10
+    je _successfulLogin
+    inc esi
+    inc edi
+
+    jmp _loop_for_passwordv2
+
+_successfulLogin:
+    ;if match prompt successful login -->
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, successfulLogin
+    mov edx, successfulLoginLength
+    int 0x80
+
+    jmp _firstMenu
+
+_invalidLogin:
+    ;if mismatch prompt the output -->
+    mov eax, 4 
+    mov ebx, 1
+    mov ecx, error_invalidLogin
+    mov edx, error_invalidLoginLength
+    int 0x80
+
+    jmp _mainPage
+
+_registerPage:
+    ;code for registration page
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, promptUserName
+    mov edx, promptUserNameLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, registerName
+    mov edx, 32
+    int 0x80
+    ;user type their first password entering confirm password
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, promptUserPassword
+    mov edx, promptUserPasswordLength
+    int 0x80
     
-    call read_char
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, registerPassword
+    mov edx, 32
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, promptConfirmPassword
+    mov edx, promptConfirmPasswordLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, confirmPassword
+    mov edx, 32
+    int 0x80
+
+    ;this mainly use for the loop
+    mov esi, registerPassword
+    mov edi, confirmPassword
     
+    ;use loop to compare the credential
+_loop_compare:
+    mov al, [esi]
+    mov bl, [edi]
+
+    cmp al, bl
+    jne _registerInvalidPage ;if dont match then failed 
+
+    cmp al, 10
+    je _registrationSuccess
+    cmp al, 0
+    ;if it's equal it will jump into succes, success jump back into main menu
+    je _registrationSuccess
+
+    inc esi
+    inc edi
+
+    jmp _loop_compare
+
+_registrationSuccess:
+    ;if match prompt successful registration -->
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, registrationSuccessMsg
+    mov edx, registrationSuccessMsgLength
+    int 0x80
+
+    jmp _mainPage
+
+_registerInvalidPage:
+    ;if mismatch prompt the output -->
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, error_confirmPassword
+    mov edx, error_confirmPasswordLength
+    int 0x80
+
+    mov byte [registerPassword], 0 ;clear the password SO it does not stored
+    
+    jmp _mainPage
+
+_firstMenu:
+    ;this is where the user get to choose what type of food they want to order
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, menuSelection
+    mov edx, menuSelectionLength
+    int 0x80
+
+    ;code to read the user input for menu selection -->
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2
+    int 0x80
+
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _menuDisplayBurger
+    cmp al, '2'
+    je _menuDisplayChickenTenders
+    cmp al, '3'
+    je _menuDisplaySpicyChickenNasiLemak
+    cmp al, '4'
+    je _menuDisplayDesserts
+    cmp al, '5'
+    je _viewCartCheckout
+    cmp al, '6'
+    je _exit_Confirmation
+
+    jmp _mainPage
+
+
+_menuDisplayBurger:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, menuDisplayBurger
+    mov edx, menuDisplayBurgerLength
+    int 0x80
+
+    ;this part of the code section allow the code to read the new input for the specific burger, if not it will causes bug of looping.
+    call _readUserInput ;use this function to handle the user choice this make code really clean cause it will be repetitive
+
+    ;user choice
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _addClassicBurgerToCart
+    cmp al, '2'
+    je _addCheeseburgerToCart
+    cmp al, '3'
+    je _addBaconBurgerToCart
+    cmp al, '4'
+    je _addVeggieBurgerToCart
+    cmp al, '5'
+    je _addBikkuMakkuBurgerToCart
+    cmp al, '6'
+    je _firstMenu
+
+    jmp _menuDisplayBurger
+
+    _addClassicBurgerToCart:
+        ;code to add the burger to the cart
+        mov eax, [priceClassicBurger] ;load the price
+        add [totalPrice], eax ;move the price into the initalize 0 variable to store the price to keep track the totalCart price
+        mov ebx, [cartCount]    ;get the current number of items
+        mov byte [cartItems + ebx], 1 ;store '1'
+        inc dword [cartCount] ;increment the count for the next item
+        jmp _jumpIntoAlaCartePage
+
+    _addCheeseburgerToCart:
+        ;code to add the burger to the cart
+        mov eax, [priceCheeseburger]
+        add [totalPrice], eax
+        mov ebx, [cartCount]    ;get the current number of items
+        mov byte [cartItems + ebx], 2 ;store '2'
+        inc dword [cartCount] ;increment the count for the next item
+        jmp _jumpIntoAlaCartePage
+
+    _addBaconBurgerToCart:
+        ;code to add the burger to the cart
+        mov eax, [priceBaconBurger]
+        add [totalPrice], eax
+        mov ebx, [cartCount]    ;get the current number of items
+        mov byte [cartItems + ebx], 3 ;store '3'
+        inc dword [cartCount] ;increment the count for the next item
+        jmp _jumpIntoAlaCartePage
+
+    _addVeggieBurgerToCart:
+        ;code to add the burger to the cart
+        mov eax, [priceVeggieBurger]
+        add [totalPrice], eax
+        mov ebx, [cartCount]    ;get the current number of items
+        mov byte [cartItems + ebx], 4 ;store '4'
+        inc dword [cartCount] ;increment the count for the next item
+        jmp _jumpIntoAlaCartePage
+
+    _addBikkuMakkuBurgerToCart:
+        ;code to add the burger to the cart
+        mov eax, [priceBikkuMakkuBurger]
+        add [totalPrice], eax
+        mov ebx, [cartCount]    ;get the current number of items
+        mov byte [cartItems + ebx], 5 ;store '5'
+        inc dword [cartCount] ;increment the count for the next item
+        jmp _jumpIntoAlaCartePage
+
+_menuDisplayChickenTenders:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, menuDisplayChickenTenders
+    mov edx, menuDisplayChickenTendersLength
+    int 0x80
+
+    call _readUserInput
+
+    ;user choice
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _addClassiscChickenTendersToCart
+    cmp al, '2'
+    je _addSpicyChickenTendersToCart
+    cmp al, '3'
+    je _addHoneyMustardChickenTendersToCart
+    cmp al, '4'
+    je _addBBQChickenTendersToCart
+    cmp al, '5'
+    je _firstMenu
+
+    jmp _menuDisplayChickenTenders ;jumps back up if user mis-input or gibberish
+
+    _addClassiscChickenTendersToCart:
+    mov eax, [priceClassicChickenTenders]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 6
+    inc dword [cartCount]
+    jmp _jumpIntoAlaCartePage
+
+    _addSpicyChickenTendersToCart:
+    mov eax, [priceSpicyChickenTenders]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 7
+    inc dword [cartCount]
+    jmp _jumpIntoAlaCartePage
+
+    _addHoneyMustardChickenTendersToCart:
+    mov eax, [priceHoneyMustardChickenTenders]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 8
+    inc dword [cartCount]
+    jmp _jumpIntoAlaCartePage
+
+    _addBBQChickenTendersToCart:
+    mov eax, [priceBBQChickenTenders]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 9
+    inc dword [cartCount]
+    jmp _jumpIntoAlaCartePage
+
+_menuDisplaySpicyChickenNasiLemak:
+    ;code to display the spicy chicken with nasi lemak menu and add to cart
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, menuDisplaySpicyChickenNasiLemak
+    mov edx, menuDisplaySpicyChickenNasiLemakLength
+    int 0x80
+
+    call _readUserInput
+
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _addSpicyChickenNStoCart
+    cmp al, '2'
+    je _firstMenu
+
+    jmp _menuDisplaySpicyChickenNasiLemak
+
+    _addSpicyChickenNStoCart:
+    mov eax, [priceSpicyChickenNS]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 10
+    inc dword [cartCount]
+    jmp _jumpIntoAlaCartePage
+
+
+_menuDisplayDesserts:
+    ;code to display the desserts menu and add to cart
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, menuDisplayDesserts
+    mov edx, menuDisplayDessertsLength
+    int 0x80
+
+    call _readUserInput
+
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _addChocolateLavaCakeToCart
+    cmp al, '2'
+    je _addVanillaIceCreamSundaeToCart
+    cmp al, '3'
+    je _addStrawberryCheesecakeToCart
+    cmp al, '4'
+    je _firstMenu
+
+    jmp _menuDisplayDesserts
+
+    _addChocolateLavaCakeToCart:
+    mov eax, [priceChocolateLavaCake]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 11
+    inc dword [cartCount]
+    call _showAddedMessage
+    jmp _menuDisplayDesserts
+
+    _addVanillaIceCreamSundaeToCart:
+    mov eax, [priceVanillaIceCreamSundae]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 12
+    inc dword [cartCount]
+    call _showAddedMessage
+    jmp _menuDisplayDesserts
+
+    _addStrawberryCheesecakeToCart:
+    mov eax, [priceStrawberryCheesecake]
+    add [totalPrice], eax
+    mov ebx, [cartCount]   
+    mov byte [cartItems + ebx], 13
+    inc dword [cartCount]
+    call _showAddedMessage
+    jmp _menuDisplayDesserts   
+
+_viewCartCheckout:
+    ;code to display the cart and checkout
+    ;check if the cart have item or not
+    mov eax, [cartCount]
+    cmp eax, 0
+    je _cartIsEmpty
+
+    call _clearScreen
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, receiptHeader
+    mov edx, receiptHeaderLength
+    int 0x80
+
+    mov esi, 0  ;esi will be the index so start at 0
+
+_printItemsLoop:
+    push esi    ;save the index
+
+    movzx eax, byte[cartItems + esi]
+    cmp eax, 1
+    je _nameClassic
+    cmp eax, 2
+    je _nameCheese
+    cmp eax, 3
+    je _nameBacon
+    cmp eax, 4
+    je _nameVeggie
+    cmp eax, 5
+    je _nameBikkuMakku
+    cmp eax, 6
+    je _nameClassicTenders
+    cmp eax, 7
+    je _nameSpicyTenders
+    cmp eax, 8
+    je _nameHoneyTenders
+    cmp eax, 9
+    je _nameBBQTenders
+    cmp eax, 10
+    je _nameNasiLemak
+    cmp eax, 11
+    je _nameLavaCake
+    cmp eax, 12
+    je _nameSundae
+    cmp eax, 13
+    je _nameCheesecake
+
+_afterPrintName:
+    pop esi ;restoure our index
+    inc esi ;move to the next item
+    cmp esi, [cartCount] ;did we reach the total count?
+    jl _printItemsLoop ;if index < cartCount, keep looping
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, priceDisplayItemOnScreen
+    mov edx, priceDisplayItemOnScreenLength
+    int 0x80
+
+    mov eax, [totalPrice]
+    call _useForCalculatingPrice ;this will calculate the price
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, priceFooter
+    mov edx, priceFooterLength
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, viewCartMsg
+    mov edx, viewCartMsgLength
+    int 0x80
+
+    call _readUserInput
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _checkOutProcess
+    cmp al, '2'
+    je _firstMenu
+
+    jmp _firstMenu
+
+_nameClassic:
+    mov ecx, nameClassic
+    mov edx, nameClassicLength
+    jmp _helperWriter
+
+_nameCheese:
+    mov ecx, nameCheese
+    mov edx, nameCheeseLength
+    jmp _helperWriter
+
+_nameBacon:
+    mov ecx, nameBacon
+    mov edx, nameBaconLength
+    jmp _helperWriter
+
+_nameVeggie:
+    mov ecx, nameVeggie
+    mov edx, nameVeggieLength
+    jmp  _helperWriter
+    
+_nameBikkuMakku:
+    mov ecx, nameBikkuMakku
+    mov edx, nameBikkuLength
+    jmp  _helperWriter
+
+_nameClassicTenders:
+    mov ecx, nameClassicTenders 
+    mov edx, nameClassicTendersLength
+    jmp _helperWriter
+
+_nameSpicyTenders:
+    mov ecx, nameSpicyTenders
+    mov edx, nameSpicyTendersLength
+    jmp _helperWriter
+
+_nameHoneyTenders:
+    mov ecx, nameHoneyTenders
+    mov edx, nameHoneyTendersLength
+    jmp _helperWriter
+
+_nameBBQTenders:
+    mov ecx, nameBBQTenders
+    mov edx, nameBBQTendersLength
+    jmp _helperWriter
+
+_nameNasiLemak:
+    mov ecx, nameSpicyNasiLemak   
+    mov edx, nameSpicyNasiLemakLength
+    jmp _helperWriter
+
+_nameLavaCake:
+    mov ecx, nameLavaCake
+    mov edx, nameLavaCakeLength
+    jmp _helperWriter
+
+_nameSundae:
+    mov ecx, nameSundaeCake
+    mov edx, nameSundaeCakeLength
+    jmp _helperWriter
+
+_nameCheesecake:
+    mov ecx, nameCheeseCaked
+    mov edx, nameCheeseCakedLength
+    jmp _helperWriter
+
+_helperWriter:
+    mov eax, 4
+    mov ebx, 1
+    int 0x80
+    jmp _afterPrintName
+
+_useForCalculatingPrice:
+    mov edi, calculationBuffer ;Edi now will store the calculationBuffer
+    add edi, 9 ;move to the end of the buffer (declared is the 10)
+    mov byte [edi], 0 ;null terminator (for safety)
+    dec edi
+
+    mov ebx, 10 ;now we will divide it with 10 so 499 become 4.99
+    mov ecx, 0  ;use ecx as a counter to track digits
+
+_conversionLoop:
+    mov edx, 0  ;clear remainder
+    div ebx     ;eax divided 10 and the quotient will store in eax remainder in edx
+    add dl, '0' ;convert the remainder (0-9) into ascii
+    mov [edi], dl ;store inside buffer
+    dec edi ;move buffer backwards
+    inc ecx ;increment digit number
+
+    cmp ecx, 2  ;check is it processed 2 digits (cents)
+    jne _checkFinished ;if no then skip
+    mov byte [edi], '.' ;if yes then put a dot on the middle
+    dec edi ;move pointer for the next digit
+
+_checkFinished:
+    cmp eax, 0
+    jne _conversionLoop
+
+    inc edi    
+
+    ;print the output
+    mov ecx, edi ;store into ecx
+    mov edx, calculationBuffer
+    add edx, 9
+    sub edx, edi ;calculate length (end - start)
+
+    mov eax, 4
+    mov ebx, 1
+    int 0x80
+    ret
+
+_cartIsEmpty:
+;if the cart is empty, it will prompt the user that the cart is empty and loop back to the main menu
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, emptyCartMsg
+    mov edx, emptyCartMsgLength
+    int 0x80
+
+    jmp _firstMenu
+
+_jumpIntoAlaCartePage:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, makeItAMeal
+    mov edx, makeItAMealLength
+    int 0x80
+
+    call _readUserInput
+
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _ifAmeal
+    cmp al, '2'
+    je _outputAlaCarte
+    cmp al, '3'
+    je _firstMenu
+    
+
+    jmp _firstMenu
+
+_outputAlaCarte:
+    jmp _firstMenu
+
+_ifAmeal:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, ifAmeal
+    mov edx, ifAmealLength
+    int 0x80
+
+    call _readUserInput
+
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _addRegularFrenchFries
+    cmp al, '2'
+    je _addLargeFrenchFries
+    cmp al, '3'
+    je _addRegularSoftDrinks
+    cmp al, '4'
+    je _addLargeSoftDrinks
+    cmp al, '5'
+    je _firstMenu
+
+     _addRegularFrenchFries:
+    mov eax, [priceRegularFrenchFries]
+    add [totalPrice], eax
+    call _showAddedMessage
+    jmp _ifAmeal
+
+    _addLargeFrenchFries:
+    mov eax, [priceLargeFries]
+    add [totalPrice], eax
+    call _showAddedMessage
+    jmp _ifAmeal
+
+    _addRegularSoftDrinks:
+    mov eax, [priceRegularSoftDrinks]
+    add [totalPrice], eax
+    call _showAddedMessage
+    jmp _ifAmeal
+
+    _addLargeSoftDrinks:
+    mov eax, [priceLargeSoftDrinks]
+    add [totalPrice], eax
+    call _showAddedMessage
+    jmp _ifAmeal
+
+_checkOutProcess:
+    ;for checking out
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, finalHeader
+    mov edx, finalHeaderLength
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, finalTotalLabel
+    mov edx, finalTotalLabelLength
+    int 0x80
+
+    mov eax, [totalPrice]
+    call _useForCalculatingPrice
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, finalFooter
+    mov edx, finalFooterLength
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, checkoutOptions
+    mov edx, checkoutOptionsLength
+    int 0x80
+
+    call _readUserInput
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _payWithCard
+    cmp al, '2'
+    je _outputPayWithCash
+    cmp al, '3'
+    je _firstMenu
+    cmp al, '4'
+    je _validationCancel
+
+    jmp _checkOutProcess
+
+_payWithCard:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, payWithCard
+    mov edx, payWithCardLength
+    int 0x80
+
+    call _readUserInput 
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, expiryPrompt
+    mov edx, expiryPromptLength
+    int 0x80
+
+    call _readUserInput
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, cvvPrompt
+    mov edx, cvvPromptLength
+    int 0x80
+
+    call _readUserInput
+
+    jmp _paymentSuccess
+
+_paymentSuccess:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, payWithCardSuccessful
+    mov edx, payWithCardSuccessfulLength
+    int 0x80
+
+    ;reset the cart so they can order fresh next time
+    mov dword [totalPrice], 0
+    mov dword [cartCount], 0
+    
+    jmp _orderAgainMenu   
+
+_paymentFailed:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, payWithCardFailed
+    mov edx, payWithCardFailedLength
+    int 0x80
+    jmp _payWithCard
+
+_outputPayWithCash:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, payAtCounterMsg
+    mov edx, payAtCounterMsgLen
+    int 0x80
+
+    mov dword [totalPrice], 0
+    mov dword [cartCount], 0
+
+    jmp _orderAgainMenu
+
+_validationCancel:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, confirmCancel
+    mov edx, confirmCancelLength
+    int 0x80
+
+    call _readUserInput
+    mov al, [choiceOption]
+    cmp al, '1'
+    je _doCancelPayment    
+    cmp al, '2'
+    je _checkOutProcess    
+    ;if they typed something else, just show this validation again
+    jmp _validationCancel
+
+_doCancelPayment:
+    mov dword [totalPrice], 0
+    mov dword [cartCount], 0
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, cancelSuccess
+    mov edx, cancelSuccessLength
+    int 0x80
+
+    jmp _exitProgram
+
+_orderAgainMenu:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, orderAgainUI
+    mov edx, orderAgainUILen
+    int 0x80
+
+    call _readUserInput
+    mov al, [choiceOption]
+
+    cmp al, '1'
+    je _firstMenu         
+
+    cmp al, '2'
+    je _exitProgram        
+
+    jmp _orderAgainMenu
+
+_exit_Confirmation:
+    ;a validation if the user really wants to exit
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, exitConfirmationMsg
+    mov edx, exitConfirmationMsgLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2
+    int 0x80
+    
+    mov al, [choiceOption]
     cmp al, 'Y'
-    je .exit_program
+    je _exitProgram
     cmp al, 'y'
-    je .exit_program
+    je _exitProgram
     cmp al, 'N'
-    je .login_menu
+    je _mainPage
     cmp al, 'n'
-    je .login_menu
+    je _mainPage
 
-; ── Register ─────────────────────────────────────
-.do_register:
-    push    promptUserName
-    call    print_string
-    push    REGNAME
-    call    read_input
+_exitProgram:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, finalExitMsg
+    mov edx, finalExitMsgLen
+    int 0x80
 
-    push    promptUserPassword
-    call    print_string
-    push    REGPASSWORD
-    call    read_input
-
-    push    promptConfirmPassword
-    call    print_string
-    push    CONFIRMPASSWORD
-    call    read_input
-
-    ; Check passwords match
-    push    REGPASSWORD
-    push    CONFIRMPASSWORD
-    call    compare_strings
-    jnz     .password_mismatch
-
-    push    registrationSuccess
-    call    print_string
-    jmp     .login_menu
-
-.password_mismatch:
-    push    error_confirmPassword
-    call    print_string
-    jmp     .do_register
-
-; ── Login ─────────────────────────────────────────
-.do_login:
-    ; check login attempts
-    mov     al, [LOGIN_COUNT]
-    cmp     al, 3
-    jge     .login_failed
-
-    push    promptUserLogin
-    call    print_string
-    push    LOGINNAME
-    call    read_input
-
-    push    promptUserLoginPassword
-    call    print_string
-    push    LOGINPASSWORD
-    call    read_input
-
-    ; Compare name
-    push    REGNAME
-    push    LOGINNAME
-    call    compare_strings
-    jnz     .login_wrong
-
-    ; Compare password
-    push    REGPASSWORD
-    push    LOGINPASSWORD
-    call    compare_strings
-    jnz     .login_wrong
-
-    ; Login success — reset count
-    mov     byte [LOGIN_COUNT], 0
-    push    successfulLogin
-    call    print_string
-    jmp     .main_menu
-
-.login_wrong:
-    mov     al, [LOGIN_COUNT]
-    inc     al
-    mov     [LOGIN_COUNT], al
-    push    error_invalidLogin
-    call    print_string
-    jmp     .do_login
-
-.login_failed:
-    push    error_fail
-    call    print_string
-    jmp     .exit_program
-
-; ── Main Food Menu ────────────────────────────────
-.main_menu:
-    push    menuSelection
-    call    print_string
-
-    call    read_char
-
-    cmp     al, '1'
-    je      .burger_menu
-    cmp     al, '2'
-    je      .tender_menu
-    cmp     al, '3'
-    je      .nasi_menu
-    cmp     al, '4'
-    je      .dessert_menu
-    cmp     al, '5'
-    je      .view_cart
-    cmp     al, '6'
-    je      .confirmation_to_exit_menu;
-    jmp     .main_menu
-    
-.confirmation_to_exit_menu:
-    push confirmationExit
-    call print_string
-    
-    call read_char
-    
-    cmp al, 'Y'
-    je .login_menu
-    cmp al, 'y'
-    je .login_menu
-    cmp al, 'N'
-    je .main_menu
-    cmp al, 'n'
-    je .main_menu   
-    
-
-; ── Burger Menu ───────────────────────────────────
-.burger_menu:
-    push    menuDisplayBurger
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .sel_classic_burger
-    cmp     al, '2'
-    je      .sel_cheeseburger
-    cmp     al, '3'
-    je      .sel_bacon_burger
-    cmp     al, '4'
-    je      .sel_veggie_burger
-    cmp     al, '5'
-    je      .sel_bikku_makku
-    cmp     al, '6'
-    je      .main_menu
-    jmp     .burger_menu
-
-.sel_classic_burger:
-    mov     eax, [priceClassicBurger]
-    jmp     .meal_or_alacarte
-.sel_cheeseburger:
-    mov     eax, [priceCheeseburger]
-    jmp     .meal_or_alacarte
-.sel_bacon_burger:
-    mov     eax, [priceBaconBurger]
-    jmp     .meal_or_alacarte
-.sel_veggie_burger:
-    mov     eax, [priceVeggieBurger]
-    jmp     .meal_or_alacarte
-.sel_bikku_makku:
-    mov     eax, [priceBikkuMakkuBurger]
-    jmp     .meal_or_alacarte
-
-; ── Chicken Tenders Menu ──────────────────────────
-.tender_menu:
-    push    menuDisplayChickenTenders
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .sel_classic_tender
-    cmp     al, '2'
-    je      .sel_spicy_tender
-    cmp     al, '3'
-    je      .sel_honey_tender
-    cmp     al, '4'
-    je      .sel_bbq_tender
-    cmp     al, '5'
-    je      .main_menu
-    jmp     .tender_menu
-
-.sel_classic_tender:
-    mov     eax, [priceClassicChickenTenders]
-    jmp     .meal_or_alacarte
-.sel_spicy_tender:
-    mov     eax, [priceSpicyChickenTenders]
-    jmp     .meal_or_alacarte
-.sel_honey_tender:
-    mov     eax, [priceHoneyMustardChickenTenders]
-    jmp     .meal_or_alacarte
-.sel_bbq_tender:
-    mov     eax, [priceBBQChickenTenders]
-    jmp     .meal_or_alacarte
-
-; ── Nasi Lemak Menu ───────────────────────────────
-.nasi_menu:
-    push    menuDisplaySpicyChickenNasiLemak
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .sel_nasi
-    cmp     al, '2'
-    je      .main_menu
-    jmp     .nasi_menu
-
-.sel_nasi:
-    mov     eax, [priceSpicyChickenNasiLemak]
-    jmp     .meal_or_alacarte
-
-; ── Dessert Menu ──────────────────────────────────
-.dessert_menu:
-    push    menuDisplayDesserts
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .sel_choc_cake
-    cmp     al, '2'
-    je      .sel_vanilla
-    cmp     al, '3'
-    je      .sel_strawberry
-    cmp     al, '4'
-    je      .main_menu
-    jmp     .dessert_menu
-
-.sel_choc_cake:
-    mov     eax, [priceChocolateLavaCake]
-    jmp     .add_to_cart
-.sel_vanilla:
-    mov     eax, [priceVanillaIceCreamSundae]
-    jmp     .add_to_cart
-.sel_strawberry:
-    mov     eax, [priceStrawberryCheesecake]
-    jmp     .add_to_cart
-
-; ── Meal or Ala Carte ─────────────────────────────
-.meal_or_alacarte:
-    push    eax                     ; save item price
-    push    makeItAMeal
-    call    print_string
-    call    read_char
-    pop     ebx                     ; restore item price to ebx
-
-    cmp     al, '1'
-    je      .choose_meal_sides
-    cmp     al, '2'
-    je      .ala_carte
-    cmp     al, '3'
-    je      .main_menu
-    push    ebx
-    jmp     .meal_or_alacarte
-
-.ala_carte:
-    mov     eax, ebx
-    jmp     .add_to_cart
-
-.choose_meal_sides:
-    ; add meal base price
-    add     ebx, [makeItAMealPrice]
-
-    push    ifAmeal
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .regular_fries
-    cmp     al, '2'
-    je      .large_fries
-    cmp     al, '3'
-    je      .regular_drink
-    cmp     al, '4'
-    je      .large_drink
-    cmp     al, '5'
-    je      .main_menu
-    jmp     .choose_meal_sides
-
-.regular_fries:
-    mov     eax, ebx
-    jmp     .add_to_cart
-.large_fries:
-    add     ebx, [largeFriesPrice]
-    mov     eax, ebx
-    jmp     .add_to_cart
-.regular_drink:
-    mov     eax, ebx
-    jmp     .add_to_cart
-.large_drink:
-    add     ebx, [largeSoftDrinkPrice]
-    mov     eax, ebx
-    jmp     .add_to_cart
-
-; ── Add to Cart ───────────────────────────────────
-.add_to_cart:
-    add     [cartTotal], eax
-    push    ifAlaCarte
-    call    print_string
-    jmp     .main_menu
-
-; ── View Cart ─────────────────────────────────────
-.view_cart:
-    mov     eax, [cartTotal]
-    cmp     eax, 0
-    je      .cart_empty
-
-    ; Show subtotal
-    push    priceDisplayItemOnScreen
-    call    print_string
-    push    dword [cartTotal]
-    call    print_cents
-    push    taxNote
-    call    print_string
-
-    ; Calculate 6% tax: total * 106 / 100
-    mov     eax, [cartTotal]
-    mov     ebx, 106
-    mul     ebx
-    mov     ebx, 100
-    div     ebx
-
-    ; Show total with tax
-    push    checkOutDisplayPrice
-    call    print_string
-    push    eax
-    call    print_cents
-
-    push    checkoutOptions
-    call    print_string
-
-    call    read_char
-    cmp     al, '1'
-    je      .pay_with_card
-    cmp     al, '2'
-    je      .main_menu
-    jmp     .view_cart
-
-.cart_empty:
-    push    emptyCartMsg
-    call    print_string
-    jmp     .main_menu
-
-; ── Pay with Card ─────────────────────────────────
-.pay_with_card:
-    push    payWithCard
-    call    print_string
-    push    cardNumber
-    call    read_input
-
-    push    expiryPrompt
-    call    print_string
-    push    expiryDate
-    call    read_input
-
-    push    cvvPrompt
-    call    print_string
-    push    cvv
-    call    read_input
-
-    push    payWithCardSuccessful
-    call    print_string
-
-    ; Reset cart
-    mov     dword [cartTotal], 0
-
-    ; Order again?
-    push    orderAgain
-    call    print_string
-    call    read_char
-
-    cmp     al, '1'
-    je      .main_menu
-    jmp     .exit_program
-
-; ── Exit ──────────────────────────────────────────
-.exit_program:
-    push    thankYouMessage
-    call    print_string
-
-    push    0
-    call    ExitProcess@4
+    mov eax, 1          ; sys_exit
+    xor ebx, ebx        ; return 0 
+    int 0x80
