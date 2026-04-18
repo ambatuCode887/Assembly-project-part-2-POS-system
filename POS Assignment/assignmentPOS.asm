@@ -6,6 +6,9 @@ welcomeMsg:
         db '===============================', 10, 0
 welcomeLength equ $ - welcomeMsg
 
+error_emptyInput db 'Error: Input cannot be empty!', 10
+error_emptyInputLength equ $ - error_emptyInput
+
 ;authentication part
 firstMenuLogin:
     db '===============================', 10
@@ -349,9 +352,9 @@ registerPassword resb 32
 loginName resb 32
 loginPassword resb 32
 confirmPassword resb 32
-cardNumber resb 20
-expiryDate resb 8
-cvvCode    resb 5
+cardBuffer resb 32
+expiryBuffer resb 32
+cvvBuffer    resb 32
 
 ;to list the item that user ordered
 cartItems resb 30 ;space to store 20 items
@@ -501,8 +504,7 @@ _invalidLogin:
     jmp _mainPage
 
 _registerPage:
-    ;code for registration page
-    mov eax, 4
+    mov eax, 4 ;this is my first limitation, it only allow ONE registered member if i had 2 registered member then it will overwrite the first member and only allow the second member to login.
     mov ebx, 1
     mov ecx, promptUserName
     mov edx, promptUserNameLength
@@ -513,7 +515,21 @@ _registerPage:
     mov ecx, registerName
     mov edx, 32
     int 0x80
-    ;user type their first password entering confirm password
+
+    ;check if Name is empty
+    cmp byte [registerName], 10
+    je _showEmptyError
+    jmp _inputPassword
+
+_showEmptyError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, error_emptyInput
+    mov edx, error_emptyInputLength
+    int 0x80
+    jmp _registerPage
+
+_inputPassword:
     mov eax, 4
     mov ebx, 1
     mov ecx, promptUserPassword
@@ -526,6 +542,11 @@ _registerPage:
     mov edx, 32
     int 0x80
 
+    ;check if password is empty
+    cmp byte [registerPassword], 10
+    je _showEmptyError
+
+    ;confirmation page
     mov eax, 4
     mov ebx, 1
     mov ecx, promptConfirmPassword
@@ -538,9 +559,13 @@ _registerPage:
     mov edx, 32
     int 0x80
 
-    ;this mainly use for the loop
+    ;check if it's empty
+    cmp byte [confirmPassword], 10
+    je _showEmptyError
+    ;compare both password
     mov esi, registerPassword
     mov edi, confirmPassword
+    jmp _loop_compare
     
     ;use loop to compare the credential
 _loop_compare:
@@ -1135,14 +1160,23 @@ _checkOutProcess:
     jmp _checkOutProcess
 
 _payWithCard:
-
     mov eax, 4
     mov ebx, 1
     mov ecx, payWithCard
     mov edx, payWithCardLength
     int 0x80
 
-    call _readUserInput 
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, cardBuffer     
+    mov edx, 32
+    int 0x80
+
+    mov esi, cardBuffer
+    mov edi, 16             ;want 6 digits
+    call validate_input
+    cmp eax, 0
+    je _payWithCardError   
 
     mov eax, 4
     mov ebx, 1
@@ -1150,7 +1184,17 @@ _payWithCard:
     mov edx, expiryPromptLength
     int 0x80
 
-    call _readUserInput
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, expiryBuffer
+    mov edx, 32
+    int 0x80
+
+    mov esi, expiryBuffer
+    mov edi, 8              ;want exactly 8 digits
+    call validate_input
+    cmp eax, 0
+    je _payWithCardError
 
     mov eax, 4
     mov ebx, 1
@@ -1158,9 +1202,55 @@ _payWithCard:
     mov edx, cvvPromptLength
     int 0x80
 
-    call _readUserInput
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, cvvBuffer
+    mov edx, 32
+    int 0x80
+
+    mov esi, cvvBuffer
+    mov edi, 3              ;want exactly 3 digits
+    call validate_input
+    cmp eax, 0
+    je _payWithCardError
 
     jmp _paymentSuccess
+
+_payWithCardError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, error_emptyInput
+    mov edx, error_emptyInputLength
+    int 0x80
+    jmp _payWithCard
+
+validate_input:
+    xor ecx, ecx            ;clear ECX
+
+.loop:
+    mov al, [esi + ecx]     ;get character from buffer
+    cmp al, 10              ;is it a Newline (Enter)?
+    je .check_length        ;if Enter is pressed, check if length is correct
+    
+    cmp al, '0'             ;is it less than '0'
+    jb .failed
+    cmp al, '9'             ;is it greater than '9'
+    ja .failed
+    
+    inc ecx                 ;increment count
+    cmp ecx, 20             ;safety limit to prevent infinite loops
+    jg .failed
+    jmp .loop
+
+.check_length:
+    cmp ecx, edi            ;does actual count == required length
+    jne .failed
+    mov eax, 1            
+    ret
+
+.failed:
+    mov eax, 0              ;failed
+    ret               
 
 _paymentSuccess:
     mov eax, 4
