@@ -168,6 +168,24 @@ cancelSuccess:
     db '====================================', 10, 0
 cancelSuccessLength equ $ - cancelSuccess
 
+_regNameErrorMsg:
+    db '====================================', 10
+    db '  INVALID NAME! LETTERS ONLY (3-31) ', 10
+    db '====================================', 10, 0
+_regNameErrorLen equ $ - _regNameErrorMsg
+
+_regPassErrorMsg:
+    db '====================================', 10
+    db '  ERROR: PASSWORD TOO SHORT (MIN 4) ', 10
+    db '====================================', 10, 0
+_regPassErrorLen equ $ - _regPassErrorMsg
+
+_regMatchErrorMsg:
+    db '====================================', 10
+    db '  ERROR: PASSWORDS DO NOT MATCH!    ', 10
+    db '====================================', 10, 0
+_regMatchErrorLen equ $ - _regMatchErrorMsg
+
 payAtCounterMsg:
     db '================================================', 10
     db ' THANK YOU FOR ORDERING!                        ', 10
@@ -355,6 +373,7 @@ confirmPassword resb 32
 cardBuffer resb 32
 expiryBuffer resb 32
 cvvBuffer    resb 32
+junkBuffer  resb 1
 
 ;to list the item that user ordered
 cartItems resb 30 ;space to store 20 items
@@ -513,21 +532,15 @@ _registerPage:
     mov eax, 3
     mov ebx, 0
     mov ecx, registerName
-    mov edx, 32
+    mov edx, 32 
     int 0x80
 
-    ;check if Name is empty
-    cmp byte [registerName], 10
-    je _showEmptyError
-    jmp _inputPassword
+    mov esi, registerName
+    call validate_alpha     
+    cmp eax, 0
+    je _registerNameError
 
-_showEmptyError:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, error_emptyInput
-    mov edx, error_emptyInputLength
-    int 0x80
-    jmp _registerPage
+    jmp _inputPassword           
 
 _inputPassword:
     mov eax, 4
@@ -542,9 +555,21 @@ _inputPassword:
     mov edx, 32
     int 0x80
 
-    ;check if password is empty
-    cmp byte [registerPassword], 10
-    je _showEmptyError
+    mov esi, registerPassword
+    xor ecx, ecx
+
+_checkPassLoop:
+    mov al, [esi + ecx]
+    cmp al, 10              ;checking if the user is just press enter
+    je _verifyPassLength
+    inc ecx
+    cmp ecx, 32             ;safety break
+    jg _registerPassError
+    jmp _checkPassLoop
+
+_verifyPassLength:
+    cmp ecx, 4             ;make sure it had to be equal or more than 4
+    jb _registerPassError   ;if not then prompt error
 
     ;confirmation page
     mov eax, 4
@@ -559,9 +584,6 @@ _inputPassword:
     mov edx, 32
     int 0x80
 
-    ;check if it's empty
-    cmp byte [confirmPassword], 10
-    je _showEmptyError
     ;compare both password
     mov esi, registerPassword
     mov edi, confirmPassword
@@ -586,6 +608,41 @@ _loop_compare:
 
     jmp _loop_compare
 
+_registerNameError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, _regNameErrorMsg
+    mov edx, _regNameErrorLen
+    int 0x80
+    jmp _do_flush_and_restart
+
+_registerPassError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, _regPassErrorMsg
+    mov edx, _regPassErrorLen
+    int 0x80
+    jmp _do_flush_and_restart
+
+_registerMatchError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, _regMatchErrorMsg
+    mov edx, _regMatchErrorLen
+    int 0x80
+    jmp _do_flush_and_restart
+
+_do_flush_and_restart:
+    ;this "eats" the extra characters that cause the Segfault/Loops
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, junkBuffer     ;'junkBuffer resb 1' in .bss
+    mov edx, 1
+    int 0x80
+    cmp byte [junkBuffer], 10
+    jne _do_flush_and_restart
+    jmp _registerPage
+
 _registrationSuccess:
     ;if match prompt successful registration -->
     mov eax, 4
@@ -595,6 +652,30 @@ _registrationSuccess:
     int 0x80
 
     jmp _mainPage
+
+validate_alpha:
+    xor ecx, ecx
+.loop:
+    mov al, [esi + ecx]
+    cmp al, 10              ;check for Enter
+    je .check_min_len
+    cmp al, ' '             ;allow Space
+    je .next
+    cmp al, 'A'             ;check A-Z
+    jb .failed
+    cmp al, 'z'             ;check a-z
+    ja .failed
+.next:
+    inc ecx
+    jmp .loop
+.check_min_len:
+    cmp ecx, 3              ;minimum 3 characters for a name
+    jb .failed
+    mov eax, 1
+    ret
+.failed:
+    xor eax, eax
+    ret
 
 _registerInvalidPage:
     ;if mismatch prompt the output -->
