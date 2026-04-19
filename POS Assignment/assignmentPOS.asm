@@ -793,7 +793,7 @@ _removeItem:
     je _cartIsEmpty
 
     call _clearScreen
-    call _displayCartContents  ; <--- REUSED HERE
+    call _displayCartContents  ;reused the same as cart one
     
     mov eax, 4
     mov ebx, 1
@@ -823,14 +823,12 @@ _removeItem:
     jmp _executingRemove
 
 _displayCartContents:
-    ; --- 1. Print Header ---
     mov eax, 4
     mov ebx, 1
     mov ecx, receiptHeader
     mov edx, receiptHeaderLength
     int 0x80
 
-    ; --- 2. Print Dining Option ---
     cmp byte [diningChoice], '1'
     je .dineIn
     mov ecx, receiptTakeAway
@@ -844,19 +842,15 @@ _displayCartContents:
     mov ebx, 1
     int 0x80
 
-    ; --- 3. Print the Numbered List ---
+    ;print the list
     mov esi, 0
 .listLoop:
     push esi
     
-    ; (Code here to print the number "1. ", "2. ", etc.)
-    ; You can use the tempChar logic here
-    
     pop esi
     push esi
     movzx eax, byte [cartItems + esi]
-    
-    
+
     ;now since i reusing the same variable for the cart
     ;im gonna create a local variable which using . so i dont need to define an entire line of code for this part, cause its subroutine 
 
@@ -966,7 +960,7 @@ _displayCartContents:
     cmp esi, [cartCount]
     jl .listLoop
     
-    ret ; <--- THIS IS CRITICAL. It returns to wherever called it.
+    ret ;return
 
 _removeError:
     mov eax, 4
@@ -994,7 +988,92 @@ _shiftLoop:
 
 _doneShifting:
     dec dword [cartCount] ;reduce the item
+    mov dword [totalPrice], 0    ;reset total to 0
 
+    .startLoop:
+        mov esi, 0
+_recalculatePrice:
+    cmp esi, [cartCount]
+    je _finishRemoval
+
+    movzx eax, byte [cartItems + esi];get all ID
+    ;burger
+    cmp eax, 1
+    je .add1
+    cmp eax, 2
+    je .add2
+    cmp eax, 3
+    je .add3
+    cmp eax, 4
+    je .add4
+    cmp eax, 5
+    je .add5
+    
+    ;chicken tender
+    cmp eax, 6
+    je .add6
+    cmp eax, 7
+    je .add7
+    cmp eax, 8
+    je .add8
+    cmp eax, 9
+    je .add9
+
+    ;nasi lemak and desserts
+    cmp eax, 10
+    je .add10
+    cmp eax, 11
+    je .add11
+    cmp eax, 12
+    je .add12
+    cmp eax, 13
+    je .add13
+    jmp .nextItem                ;skip if id is unknown
+
+.add1:  mov ebx, [priceClassicBurger]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add2:  mov ebx, [priceCheeseburger]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add3:  mov ebx, [priceBaconBurger]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add4:  mov ebx, [priceVeggieBurger]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add5:  mov ebx, [priceBikkuMakkuBurger]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add6:  mov ebx, [priceClassicChickenTenders]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add7:  mov ebx, [priceSpicyChickenTenders]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add8:  mov ebx, [priceHoneyMustardChickenTenders]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add9:  mov ebx, [priceBBQChickenTenders]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add10: mov ebx, [priceSpicyChickenNS]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add11: mov ebx, [priceChocolateLavaCake]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add12: mov ebx, [priceVanillaIceCreamSundae]
+        add [totalPrice], ebx
+        jmp .nextItem
+.add13: mov ebx, [priceStrawberryCheesecake]
+        add [totalPrice], ebx
+        jmp .nextItem
+.nextItem:
+    inc esi
+    jmp _recalculatePrice
+
+_finishRemoval:
     mov eax, 4
     mov ebx, 1
     mov ecx, removeSuccessMsg
