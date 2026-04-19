@@ -28,7 +28,8 @@ menuSelection:
     db '3. Spicy Chicken with Nasi Lemak', 10
     db '4. Desserts', 10
     db '5. View Cart & Checkout', 10
-    db '6. Exit', 10
+    db '6. Remove Item From Cart', 10
+    db '7. Exit', 10
     db '===============================', 10
     db 'selection: ', 0
 menuSelectionLength equ $ - menuSelection
@@ -235,6 +236,35 @@ ifAmeal:
     db 'selection: ', 0
 ifAmealLength equ $ - ifAmeal
 
+removeError db '====================================', 10
+                db '  ERROR: INVALID ITEM NUMBER!       ', 10
+                db '====================================', 10, 0
+removeErrorLength equ $ - removeError
+
+removeSuccessMsg:
+        db '====================================', 10
+        db '   ITEM REMOVED SUCCESSFULLY!       ', 10
+        db '   YOUR CART HAS BEEN UPDATED       ', 10
+        db '====================================', 10, 0
+removeSuccessMsgLength equ $ - removeSuccessMsg
+
+diningPrompt     db '====================================', 10
+                 db '      DINING OPTION:                ', 10
+                 db '      1. Dine-In                    ', 10
+                 db '      2. Take-Away                  ', 10
+                 db '====================================', 10
+                 db 'Selection: ', 0
+diningPromptLength equ $ - diningPrompt
+
+msgDineIn   db "Dine-In", 0
+msgTakeAway db "Take-Away", 0
+
+receiptDineIn    db ' Dining Option: Dine-In', 10, 0
+receiptDineInLength equ $ - receiptDineIn
+    
+receiptTakeAway  db ' Dining Option: Take-Away', 10, 0
+receiptTakeAwayLength equ $ - receiptTakeAway
+
 
 
 ;clearing screen purporses
@@ -329,6 +359,15 @@ nameSundaeCakeLength     equ $ - nameSundaeCake
 nameCheeseCaked          db ' - Strawberry Cheesecake', 10
 nameCheeseCakedLength    equ $ - nameCheeseCaked
 
+removePrompt    db 10, 'Enter the item number to remove: ', 0
+removePromptLength equ $ - removePrompt
+    
+removeErr       db 10, 'INVALID ITEM NUMBER!', 10, 0
+removeErrLength    equ $ - removeErr
+
+removeItemMsg   db 10, 'ITEM REMOVED SUCCESSFULLY.', 10, 0
+removeItemMsgLength equ $ - removeItemMsg
+
 ;ITEM PRICE
 ; Burgers
 priceClassicBurger          dd 599
@@ -374,6 +413,7 @@ cardBuffer resb 32
 expiryBuffer resb 32
 cvvBuffer    resb 32
 junkBuffer  resb 1
+diningChoice resb 2
 
 ;to list the item that user ordered
 cartItems resb 30 ;space to store 20 items
@@ -510,7 +550,7 @@ _successfulLogin:
     mov edx, successfulLoginLength
     int 0x80
 
-    jmp _firstMenu
+    jmp _chooseDining
 
 _invalidLogin:
     ;if mismatch prompt the output -->
@@ -689,6 +729,30 @@ _registerInvalidPage:
     
     jmp _mainPage
 
+_chooseDining:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, diningPrompt
+    mov edx, diningPromptLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, diningChoice
+    mov edx, 2
+    int 0x80
+
+    cmp byte [diningChoice], '1'
+    je _setDineIn
+    cmp byte [diningChoice], '2'
+    je _setTakeAway
+
+_setDineIn:
+    jmp _firstMenu
+
+_setTakeAway:
+    jmp _firstMenu    
+
 _firstMenu:
     ;this is where the user get to choose what type of food they want to order
     mov eax, 4
@@ -716,10 +780,251 @@ _firstMenu:
     cmp al, '5'
     je _viewCartCheckout
     cmp al, '6'
-    je _exit_Confirmation
+    je _removeItem
+    cmp al, '7'
+    je _first_menu_confirmationExit
 
     jmp _mainPage
 
+_removeItem:
+    ;check if cart is empty or not
+    mov eax, [cartCount]
+    cmp eax, 0
+    je _cartIsEmpty
+
+    call _clearScreen
+    call _displayCartContents  ; <--- REUSED HERE
+    
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, removePrompt
+    mov edx, removePromptLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2 
+    int 0x80
+
+    mov al, [choiceOption]
+    sub al, '0'
+    movzx ebx, al
+
+    ;validate the number must be more than 0 and less or equal than cartCount
+    cmp ebx, 1
+    jl _removeError
+    mov eax, [cartCount]        
+    cmp ebx, eax
+    jg _removeError
+
+    dec ebx
+    mov esi, ebx
+    jmp _executingRemove
+
+_displayCartContents:
+    ; --- 1. Print Header ---
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, receiptHeader
+    mov edx, receiptHeaderLength
+    int 0x80
+
+    ; --- 2. Print Dining Option ---
+    cmp byte [diningChoice], '1'
+    je .dineIn
+    mov ecx, receiptTakeAway
+    mov edx, receiptTakeAwayLength
+    jmp .printDining
+.dineIn:
+    mov ecx, receiptDineIn
+    mov edx, receiptDineInLength
+.printDining:
+    mov eax, 4
+    mov ebx, 1
+    int 0x80
+
+    ; --- 3. Print the Numbered List ---
+    mov esi, 0
+.listLoop:
+    push esi
+    
+    ; (Code here to print the number "1. ", "2. ", etc.)
+    ; You can use the tempChar logic here
+    
+    pop esi
+    push esi
+    movzx eax, byte [cartItems + esi]
+    
+    
+    ;now since i reusing the same variable for the cart
+    ;im gonna create a local variable which using . so i dont need to define an entire line of code for this part, cause its subroutine 
+
+    cmp eax, 1
+    je .nClassic
+    cmp eax, 2
+    je .nCheese
+    cmp eax, 3
+    je .nBacon
+    cmp eax, 4
+    je .nVeggie
+    cmp eax, 5
+    je .nBikkuMakku
+    cmp eax, 6
+    je .nClassicTenders
+    cmp eax, 7
+    je .nSpicyTenders
+    cmp eax, 8
+    je .nHoneyTenders
+    cmp eax, 9
+    je .nBBQTenders
+    cmp eax, 10
+    je .nNasiLemak
+    cmp eax, 11
+    je .nLavaCake
+    cmp eax, 12
+    je .nSundae
+    cmp eax, 13
+    je .nCheesecake
+
+    jmp .afterName
+    
+    ;do the same
+.nClassic:
+    mov ecx, nameClassic
+    mov edx, nameClassicLength
+    jmp .printViaHelper
+
+.nCheese:
+    mov ecx, nameCheese
+    mov edx, nameCheeseLength
+    jmp .printViaHelper
+
+.nBacon:
+    mov ecx, nameBacon
+    mov edx, nameBaconLength
+    jmp .printViaHelper
+
+.nVeggie:
+    mov ecx, nameVeggie
+    mov edx, nameVeggieLength
+    jmp .printViaHelper
+    
+.nBikkuMakku:
+    mov ecx, nameBikkuMakku
+    mov edx, nameBikkuLength
+    jmp .printViaHelper
+
+.nClassicTenders:
+    mov ecx, nameClassicTenders 
+    mov edx, nameClassicTendersLength
+    jmp .printViaHelper
+
+.nSpicyTenders:
+    mov ecx, nameSpicyTenders
+    mov edx, nameSpicyTendersLength
+    jmp .printViaHelper
+
+.nHoneyTenders:
+    mov ecx, nameHoneyTenders
+    mov edx, nameHoneyTendersLength
+    jmp .printViaHelper
+
+.nBBQTenders:
+    mov ecx, nameBBQTenders
+    mov edx, nameBBQTendersLength
+    jmp .printViaHelper
+
+.nNasiLemak:
+    mov ecx, nameSpicyNasiLemak   
+    mov edx, nameSpicyNasiLemakLength
+    jmp .printViaHelper
+
+.nLavaCake:
+    mov ecx, nameLavaCake
+    mov edx, nameLavaCakeLength
+    jmp .printViaHelper
+
+.nSundae:
+    mov ecx, nameSundaeCake
+    mov edx, nameSundaeCakeLength
+    jmp .printViaHelper
+
+.nCheesecake:
+    mov ecx, nameCheeseCaked
+    mov edx, nameCheeseCakedLength
+    jmp .printViaHelper
+
+.printViaHelper:
+    mov eax, 4
+    mov ebx, 1
+    int 0x80
+
+.afterName:
+    pop esi
+    inc esi
+    cmp esi, [cartCount]
+    jl .listLoop
+    
+    ret ; <--- THIS IS CRITICAL. It returns to wherever called it.
+
+_removeError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, removeError
+    mov edx, removeErrorLength
+    int 0x80
+    jmp _viewCartCheckout
+
+_executingRemove:
+    ;loop shifts items left: cartItems[i] = cartItems[i+1]
+_shiftLoop:
+    mov edi, esi
+    inc edi
+
+    mov eax, [cartCount]
+    cmp edi, eax    ;is next index out of bounds?
+    je _doneShifting    ;if yes then stop
+
+    mov al, [cartItems + edi] ;load next item
+    mov [cartItems + esi], al   ;store in the current item spots
+
+    inc esi ;move to the next position
+    jmp _shiftLoop
+
+_doneShifting:
+    dec dword [cartCount] ;reduce the item
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, removeSuccessMsg
+    mov edx, removeSuccessMsgLength
+    int 0x80
+    
+    jmp _viewCartCheckout
+
+_first_menu_confirmationExit:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, exitConfirmationMsg
+    mov edx, exitConfirmationMsgLength
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, choiceOption
+    mov edx, 2
+    int 0x80
+    
+    mov al, [choiceOption]
+    cmp al, 'Y'
+    je _exitProgram
+    cmp al, 'y'
+    je _exitProgram
+    cmp al, 'N'
+    je _firstMenu
+    cmp al, 'n'
+    je _firstMenu
 
 _menuDisplayBurger:
     mov eax, 4
@@ -938,6 +1243,23 @@ _viewCartCheckout:
     mov ebx, 1
     mov ecx, receiptHeader
     mov edx, receiptHeaderLength
+    int 0x80
+
+    cmp byte [diningChoice], '1'
+    je _printDineInText
+
+    ;if not 1 then it's take away
+    mov ecx, receiptTakeAway
+    mov edx, receiptTakeAwayLength
+    jmp _writeDiningOption
+
+_printDineInText:
+    mov ecx, receiptDineIn
+    mov edx, receiptDineInLength
+
+_writeDiningOption:
+    mov eax, 4
+    mov ebx, 1
     int 0x80
 
     mov esi, 0  ;esi will be the index so start at 0
