@@ -102,7 +102,7 @@ viewCartMsgLength equ $ - viewCartMsg
 finalHeader db '===============================', 10
     finalHeaderLength equ $ - finalHeader
 
-finalTotalLabel db 'Your final total (include 6% tax): $', 0
+finalTotalLabel db 'Your final total: $', 0
     finalTotalLabelLength equ $ - finalTotalLabel
 
 finalFooter db 10, '===============================', 10
@@ -186,6 +186,11 @@ _regMatchErrorMsg:
     db '  ERROR: PASSWORDS DO NOT MATCH!    ', 10
     db '====================================', 10, 0
 _regMatchErrorLen equ $ - _regMatchErrorMsg
+
+errorChoose db 10, "========================================", 10, \
+                   "  INVALID CHOICE! Please enter 1 or 2.  ", 10, \
+                   "========================================", 10, 0
+errorChooseLength equ $ - errorChoose
 
 payAtCounterMsg:
     db '================================================', 10
@@ -526,7 +531,7 @@ _loop_for_name:
 
 _loop_for_password:
     mov esi, registerPassword
-    mov edi, confirmPassword
+    mov edi, loginPassword
 
 _loop_for_passwordv2:
     mov al, [esi]
@@ -747,11 +752,22 @@ _chooseDining:
     cmp byte [diningChoice], '2'
     je _setTakeAway
 
+    jmp _setError
+
 _setDineIn:
     jmp _firstMenu
 
 _setTakeAway:
-    jmp _firstMenu    
+    jmp _firstMenu
+
+_setError:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, errorChoose
+    mov edx, errorChooseLength
+    int 0x80
+
+    jmp _chooseDining
 
 _firstMenu:
     ;this is where the user get to choose what type of food they want to order
@@ -845,10 +861,11 @@ _displayCartContents:
     ;print the list
     mov esi, 0
 .listLoop:
-    push esi
+    ;applying LIFO methods
+    push esi ;last in
     
-    pop esi
-    push esi
+    pop esi ;first out
+    push esi ;last in, save it again for the naming printing
     movzx eax, byte [cartItems + esi]
 
     ;now since i reusing the same variable for the cart
@@ -1845,6 +1862,15 @@ _exitProgram:
     mov edx, finalExitMsgLen
     int 0x80
 
-    mov eax, 1          ; sys_exit
-    xor ebx, ebx        ; return 0 
+    mov eax, 1          ;sys_exit
+    xor ebx, ebx        ;return 0 
     int 0x80
+
+    ;assumption
+    ;first assumption is cash payment
+    ;second is only 1 account if make 2 the first one deleted
+    ;third assumption when the system close it won't save the user info thus need  to register again
+    ;if the user entered other than alphabet and number which is like japaense or chinese it will trigger error
+    ;the store have unlimited item, basically no run out of stocks
+    ;card number since there are multiple bank with different number we accept all kind of number no matter what bank it is as long its equal to 16 digits
+    ;for the expired card dates it only accept numbers for eg 02252027 translate to february 25 2027 is the expired date
