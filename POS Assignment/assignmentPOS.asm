@@ -1874,3 +1874,4 @@ _exitProgram:
     ;the store have unlimited item, basically no run out of stocks
     ;card number since there are multiple bank with different number we accept all kind of number no matter what bank it is as long its equal to 16 digits
     ;for the expired card dates it only accept numbers for eg 02252027 translate to february 25 2027 is the expired date
+    ;
